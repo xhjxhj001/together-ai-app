@@ -76,6 +76,7 @@ class LlmClient:
             'Authorization': f"Bearer {self.config['silicon_sk']}",
             'Content-Type': 'application/json'
         }
+        print(messages)
         conn.request("POST", "/v1/chat/completions", payload, headers)
         # 获取响应
         response = conn.getresponse()

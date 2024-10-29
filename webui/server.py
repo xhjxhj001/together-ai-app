@@ -23,6 +23,7 @@ class WebuiServer:
 
     def __init__(self):
         self.config = lib.tools.load_config()
+        print(self.config)
 
     # 对话机器人
     def conversation(self, message, history):

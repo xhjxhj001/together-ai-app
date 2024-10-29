@@ -13,7 +13,7 @@ def load_config():
     load_dotenv(os.path.abspath(os.path.join(os.path.dirname(__file__), '../.env')))
 
     port = os.getenv("PORT")
-    host_name = os.getenv("HOSTNAME")
+    host_name = os.getenv("HOST")
     silicon_sk = os.getenv("SILICON_FLOW_SK")
     aliyun_sk = os.getenv("DASH_SCOPE_SK")
     return {"host_name": host_name, "port": port, "silicon_sk": silicon_sk, "aliyun_sk": aliyun_sk}
