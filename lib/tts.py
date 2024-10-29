@@ -24,6 +24,13 @@ class TtsClient:
         dashscope.api_key = aliyun_sk
 
     def generate_tts(self, text):
+        # 要检查的文件夹路径
+        directory = "../data/"
+
+        # 检查文件夹是否存在
+        if not os.path.exists(directory):
+            # 如果不存在，创建文件夹
+            os.makedirs(directory)
         result = SpeechSynthesizer.call(model='sambert-zhimiao-emo-v1',
                                         text=text,
                                         sample_rate=48000)
@@ -31,5 +38,5 @@ class TtsClient:
             file_name = str(uuid.uuid4())
             with open(f'../data/{file_name}.wav', 'wb') as f:
                 f.write(result.get_audio_data())
-            return f'{file_name}.wav'
+            return f'../data/{file_name}.wav'
 
