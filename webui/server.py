@@ -43,7 +43,7 @@ class WebuiServer:
     def run(self):
         theme = gr.themes.Soft()
         # AI 聊天tab
-        chatInterface = gr.ChatInterface(fn=self.conversation, multimodal=True, type="messages", title="聊天机器人（无联网功能）",
+        chatInterface = gr.ChatInterface(fn=self.conversation, multimodal=True, type="messages", title="聊天机器人（无联网，支持上传图片提问）",
                                          theme=theme)
         # 绘画助手tab
         drawInterface = gr.Interface(fn=self.draw_image, inputs=['text'], title="文生图(可以用中文prompt)", outputs=['image'],
