@@ -58,7 +58,7 @@ class WebuiServer:
         demo = gr.TabbedInterface([chatInterface, drawInterface, agentChildrenInterface], ['AI助手', '画图助手', '儿童绘本助手'],
                                   theme=theme)
 
-        demo.launch(server_name=self.config['host_name'], server_port=int(self.config['port']))
+        demo.launch(server_name="0.0.0.0", server_port=int(self.config['port']))
         # demo.launch(server_name='0.0.0.0', server_port=8071, auth=("guest", 'social_media'))
 
 

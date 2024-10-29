@@ -61,13 +61,14 @@ class LlmClient:
                     }
                 ]
             })
+            model_name = "Pro/Qwen/Qwen2-VL-7B-Instruct"
         elif 'text' in user_input:
             messages.append({
                 "role": "user",
                 "content": user_input['text']
             })
         payload = json.dumps({
-            "model": "Qwen/Qwen2.5-14B-Instruct",
+            "model": model_name,
             "messages": messages,
             "stream": True,
             "max_tokens": 2048
