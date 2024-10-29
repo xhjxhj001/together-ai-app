@@ -44,15 +44,31 @@ class LlmClient:
             history = history[-8:]
             for item in history:
                 messages.append(item)
+        # 处理历史数据
+        for index, message in enumerate(messages):
+            if isinstance(message['content'], tuple) and tools.is_image_file(message['content'][0]):
+                model_name = "Pro/OpenGVLab/InternVL2-8B"
+                messages[index] = {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": tools.image_to_base64(message['content'][0])
+                            }
+                        }
+                    ]
+                }
         if 'files' in user_input and len(user_input['files']) > 0 and tools.is_image_file(user_input['files'][0]):
+            base64_string = tools.image_to_base64(user_input['files'][0])
+            model_name = "Pro/OpenGVLab/InternVL2-8B"
             messages.append({
                 "role": "user",
                 "content": [
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": f"http://{self.config['host_name']}:{self.config['port']}/gradio_api/file=" +
-                                   user_input['files'][0]
+                            "url": base64_string
                         }
                     },
                     {
@@ -61,12 +77,14 @@ class LlmClient:
                     }
                 ]
             })
-            model_name = "Pro/Qwen/Qwen2-VL-7B-Instruct"
         elif 'text' in user_input:
             messages.append({
                 "role": "user",
                 "content": user_input['text']
             })
+
+        if model_name == "Pro/OpenGVLab/InternVL2-8B":
+            messages = messages[1:]
         payload = json.dumps({
             "model": model_name,
             "messages": messages,
@@ -77,7 +95,6 @@ class LlmClient:
             'Authorization': f"Bearer {self.config['silicon_sk']}",
             'Content-Type': 'application/json'
         }
-        print(messages)
         conn.request("POST", "/v1/chat/completions", payload, headers)
         # 获取响应
         response = conn.getresponse()
@@ -90,6 +107,7 @@ class LlmClient:
                 if not line:
                     break
                 data = line.decode('utf-8')
+                print(data)
                 if data == 'data: [DONE]\n' or data == '[DONE]\\n' or data == '[DONE]':
                     break
                 if len(data) > 6:
