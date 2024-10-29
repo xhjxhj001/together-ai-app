@@ -48,6 +48,13 @@ def generate_audio(obj):
     for index, item in enumerate(obj):
         str += f"第{index + 1}章：" + item['story'] + "。"
     file_name = lib.tts.TtsClient().generate_tts(str)
+    # 要检查的文件夹路径
+    directory = "../data/"
+
+    # 检查文件夹是否存在
+    if not os.path.exists(directory):
+        # 如果不存在，创建文件夹
+        os.makedirs(directory)
     return "../data/" + file_name
 
 def generate_pictures(obj):
