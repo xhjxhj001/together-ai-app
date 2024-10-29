@@ -4,6 +4,7 @@ import tools
 
 draw_prompt = "你是一个文生图prompt专家，请将用户输入的中文prompt转化为英文prompt"
 assis_prompt = "你是一个系统助手，请用中文回答问题"
+vl_model_name = "OpenGVLab/InternVL2-26B"
 
 
 class LlmClient:
@@ -47,7 +48,7 @@ class LlmClient:
         # 处理历史数据
         for index, message in enumerate(messages):
             if isinstance(message['content'], tuple) and tools.is_image_file(message['content'][0]):
-                model_name = "Pro/OpenGVLab/InternVL2-8B"
+                model_name = vl_model_name
                 messages[index] = {
                     "role": "user",
                     "content": [
@@ -61,7 +62,7 @@ class LlmClient:
                 }
         if 'files' in user_input and len(user_input['files']) > 0 and tools.is_image_file(user_input['files'][0]):
             base64_string = tools.image_to_base64(user_input['files'][0])
-            model_name = "Pro/OpenGVLab/InternVL2-8B"
+            model_name = vl_model_name
             messages.append({
                 "role": "user",
                 "content": [
@@ -83,7 +84,7 @@ class LlmClient:
                 "content": user_input['text']
             })
 
-        if model_name == "Pro/OpenGVLab/InternVL2-8B":
+        if model_name == vl_model_name:
             messages = messages[1:]
         payload = json.dumps({
             "model": model_name,
