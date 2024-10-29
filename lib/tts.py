@@ -5,23 +5,18 @@ import dashscope
 from dashscope.audio.tts import SpeechSynthesizer
 
 import os
-from dotenv import load_dotenv
+import tools
 
-aliyun_sk = ""
 
 class TtsClient:
     def __init__(self):
-        # 加载 .env 文件
-        load_dotenv()
-
-        # 读取环境变量
-        global aliyun_sk
-        aliyun_sk = os.getenv("DASH_SCOPE_SK")
+        config = tools.load_config()
+        self.aliyun_sk = config['aliyun_sk']
 
         # 打印环境变量
-        print("aliyun_sk:", aliyun_sk)
+        print("aliyun_sk:", self.aliyun_sk)
 
-        dashscope.api_key = aliyun_sk
+        dashscope.api_key = self.aliyun_sk
 
     def generate_tts(self, text):
         # 要检查的文件夹路径

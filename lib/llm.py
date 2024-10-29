@@ -1,18 +1,17 @@
 import http.client
 import json
-import os
-from dotenv import load_dotenv
+import tools
 
 draw_prompt = "你是一个文生图prompt专家，请将用户输入的中文prompt转化为英文prompt"
 assis_prompt = "你是一个系统助手，请用中文回答问题"
 
+
 class LlmClient:
     def __init__(self):
-        # 加载 .env 文件
-        load_dotenv()
-        self.silicon_sk = os.getenv("SILICON_FLOW_SK")
+        config = tools.load_config()
+        self.config = config
         # 打印环境变量
-        print("silicon_sk:", self.silicon_sk)
+        print("silicon_sk:", self.config['silicon_sk'])
 
     def draw(self, prompt):
         print("user_input:", prompt)
@@ -24,7 +23,7 @@ class LlmClient:
             "image_size": "1024x1024"
         })
         headers = {
-            'Authorization': f'Bearer {self.silicon_sk}',
+            'Authorization': f"Bearer {self.config['silicon_sk']}",
             'Content-Type': 'application/json'
         }
         conn.request("POST", "/v1/images/generations", payload, headers)
@@ -36,16 +35,33 @@ class LlmClient:
             return ""
         return obj['images'][0]['url']
 
-
     def chat(self, user_input, history=None, template="你是一个系统助手，请用中文回答问题"):
         print("user_input:", user_input)
         conn = http.client.HTTPSConnection("api.siliconflow.cn")
         messages = [{"role": "system", "content": template}]
+        model_name = "Qwen/Qwen2.5-14B-Instruct"
         if history is not None and len(history) > 0:
             history = history[-8:]
             for item in history:
                 messages.append(item)
-        if 'text' in user_input:
+        if 'files' in user_input and len(user_input['files']) > 0 and tools.is_image_file(user_input['files'][0]):
+            messages.append({
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"http://{self.config['host_name']}:{self.config['port']}/gradio_api/file=" +
+                                   user_input['files'][0]
+                        }
+                    },
+                    {
+                        "type": "text",
+                        "text": user_input['text']
+                    }
+                ]
+            })
+        elif 'text' in user_input:
             messages.append({
                 "role": "user",
                 "content": user_input['text']
@@ -57,7 +73,7 @@ class LlmClient:
             "max_tokens": 2048
         })
         headers = {
-            'Authorization': f'Bearer {self.silicon_sk}',
+            'Authorization': f"Bearer {self.config['silicon_sk']}",
             'Content-Type': 'application/json'
         }
         conn.request("POST", "/v1/chat/completions", payload, headers)
@@ -80,7 +96,6 @@ class LlmClient:
         else:
             print(f"请求失败，状态码: {response.status}")
 
-
     def chat_single(self, user_input, history=None, template="你是一个系统助手，请用中文回答问题"):
         print("user_input:", user_input)
         conn = http.client.HTTPSConnection("api.siliconflow.cn")
@@ -101,7 +116,7 @@ class LlmClient:
             "max_tokens": 1024
         })
         headers = {
-            'Authorization': f'Bearer {self.silicon_sk}',
+            'Authorization': f"Bearer {self.config['silicon_sk']}",
             'Content-Type': 'application/json'
         }
         conn.request("POST", "/v1/chat/completions", payload, headers)

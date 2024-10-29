@@ -3,9 +3,10 @@
 # 获取当前脚本的绝对路径
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 
+cd $SCRIPT_DIR
 
 # 要检查的文件路径
-FILE="$SCRIPT_DIR/lib/.env"
+FILE="$SCRIPT_DIR/.env"
 
 # 检查文件是否存在
 if [ ! -e "$FILE" ]; then
@@ -13,4 +14,6 @@ if [ ! -e "$FILE" ]; then
     exit
 fi
 pip install -r requirements.txt
-python bot/server.py
+
+
+python webui/server.py
