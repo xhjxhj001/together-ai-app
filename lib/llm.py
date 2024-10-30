@@ -14,14 +14,14 @@ class LlmClient:
         # 打印环境变量
         print("silicon_sk:", self.config['silicon_sk'])
 
-    def draw(self, prompt):
+    def draw(self, prompt, width=1024, height=1024):
         print("user_input:", prompt)
 
         conn = http.client.HTTPSConnection("api.siliconflow.cn")
         payload = json.dumps({
             "model": "black-forest-labs/FLUX.1-schnell",
             "prompt": prompt,
-            "image_size": "1024x1024"
+            "image_size": f"{width}x{height}"
         })
         headers = {
             'Authorization': f"Bearer {self.config['silicon_sk']}",

@@ -2,5 +2,6 @@
 .DS_Store
 .idea
 *.log
+.gradio
 data
 __pycache__
