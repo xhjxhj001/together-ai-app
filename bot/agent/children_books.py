@@ -51,16 +51,17 @@ def generate_audio(obj):
     return file_path
 
 def generate_pictures(obj):
-    res = []
+    res = [None] * len(obj)  # 创建一个与 obj 长度相同的空列表
 
     # 使用 ThreadPoolExecutor 进行多线程处理
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        # 提交所有绘图任务
-        futures = [executor.submit(draw_picture, item) for item in obj]
+        # 提交所有绘图任务，并记录索引
+        futures = {executor.submit(draw_picture, item): index for index, item in enumerate(obj)}
 
         # 等待所有任务完成并收集结果
         for future in concurrent.futures.as_completed(futures):
-            res.append(future.result())
+            index = futures[future]  # 获取原始索引
+            res[index] = future.result()  # 将结果放入正确的位置
 
     return res
 
