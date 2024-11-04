@@ -34,15 +34,16 @@ class WebuiServer:
             yield res
 
     # 画图机器人
-    def draw_image(self, prompt, width, height, history):
-        trans_prompt = lib.llm.LlmClient().chat_single(prompt, history, lib.llm.draw_prompt)
-        return lib.llm.LlmClient().draw(trans_prompt, width, height)
+    def draw_image(self, model, prompt, width, height):
+        trans_prompt = lib.llm.LlmClient().chat_single(prompt, None, lib.llm.draw_prompt)
+        return lib.llm.LlmClient().draw(trans_prompt, model, width, height)
     # 儿童绘本
-    def children_books(self, prompt, pages, history):
+    def children_books(self, prompt, pages):
         return bot.agent.children_books.generate_children_books(topic=prompt, pages=pages)
     # 图文故事生成
-    def story_gen(self, prompt, style, pages, history):
-        return bot.agent.story_gen.generate_story_books(topic=prompt, style=style, pages=pages)
+    def story_gen(self, model, prompt, style, pages, with_audio):
+        return bot.agent.story_gen.generate_story_books(topic=prompt, style=style, model=model, with_audio=with_audio, pages=pages)
+
 
     def run(self):
         theme = gr.themes.Soft()
@@ -50,7 +51,9 @@ class WebuiServer:
         chatInterface = gr.ChatInterface(fn=self.conversation, multimodal=True, type="messages", title="聊天机器人（无联网，支持上传图片提问）",
                                          theme=theme)
         # 绘画助手tab
-        drawInterface = gr.Interface(fn=self.draw_image, inputs=[gr.Text(label="提示词"),
+        drawInterface = gr.Interface(fn=self.draw_image, inputs=[
+                                    gr.components.Dropdown(value="black-forest-labs/FLUX.1-schnell",label="切换模型", choices=["black-forest-labs/FLUX.1-schnell","stabilityai/stable-diffusion-3-5-large"]),
+                                    gr.Text(label="提示词"),
                                      gr.Slider(128, 2048, 1024, label="宽"),
                                      gr.Slider(128, 2048, 1024, label="高")], title="文生图(可以用中文prompt)",
                                      outputs=[gr.Image(label="结果")],
@@ -59,15 +62,28 @@ class WebuiServer:
 
         # 故事绘本tab
         agentChildrenInterface = gr.Interface(fn=self.children_books,
-                                              inputs=[gr.Text(label="提示词"), gr.Slider(1, 20, step=1, label="章节数")],
-                                              outputs=[gr.Markdown(), gr.Audio()], submit_btn="生成", theme=theme,
-                                     flagging_mode="auto")
+                                              inputs=[gr.Text(label="提示词"),
+                                                      gr.Slider(1, 20, step=1, label="章节数")],
+                                              outputs=[gr.Markdown(label="故事图文"),
+                                                       gr.Audio(label="故事音频", autoplay=True)], submit_btn="生成", theme=theme,
+                                              flagging_mode="auto")
 
         # 图文故事生成器 tab
         agentStoryGenInterface = gr.Interface(fn=self.story_gen,
-                                              inputs=[gr.Text(label="故事主题"), gr.Text(label="图片风格"), gr.Slider(1, 20, step=1, label="章节数")],
-                                              outputs=[gr.Markdown(), gr.Audio()], submit_btn="生成", theme=theme,
-                                     flagging_mode="auto")
+                                              inputs=[gr.components.Dropdown(value="black-forest-labs/FLUX.1-schnell", label="切换模型", choices=["black-forest-labs/FLUX.1-schnell"]),
+                                                      gr.Text(label="故事主题"),
+                                                      gr.Text(label="图片风格"),
+                                                      gr.Slider(1, 20, step=1, label="章节数"),
+                                                      gr.Checkbox(True, label="生成音频")
+                                                      ],
+
+                                              outputs=[gr.Markdown(label="故事图文"),
+                                                       gr.Audio(label="故事音频", autoplay=True)], submit_btn="生成", theme=theme,
+                                              flagging_mode="auto")
+
+        # 文章转电台
+
+
 
         # main 实例化gradio tab 序列
         demo = gr.TabbedInterface([chatInterface, drawInterface, agentChildrenInterface, agentStoryGenInterface],

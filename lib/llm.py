@@ -5,6 +5,7 @@ import tools
 draw_prompt = "你是一个文生图prompt专家，请将用户输入的中文prompt转化为英文prompt"
 assis_prompt = "你是一个系统助手，请用中文回答问题"
 vl_model_name = "OpenGVLab/InternVL2-26B"
+llm_model_name = "Qwen/Qwen2.5-14B-Instruct"
 
 
 class LlmClient:
@@ -14,14 +15,15 @@ class LlmClient:
         # 打印环境变量
         print("silicon_sk:", self.config['silicon_sk'])
 
-    def draw(self, prompt, width=1024, height=1024):
+    def draw(self, prompt, model="black-forest-labs/FLUX.1-schnell", width=1024, height=1024):
         print("user_input:", prompt)
 
         conn = http.client.HTTPSConnection("api.siliconflow.cn")
         payload = json.dumps({
-            "model": "black-forest-labs/FLUX.1-schnell",
+            "model": model,
             "prompt": prompt,
-            "image_size": f"{width}x{height}"
+            "image_size": f"{width}x{height}",
+            "num_inference_steps": 50,
         })
         headers = {
             'Authorization': f"Bearer {self.config['silicon_sk']}",
@@ -40,7 +42,7 @@ class LlmClient:
         print("user_input:", user_input)
         conn = http.client.HTTPSConnection("api.siliconflow.cn")
         messages = [{"role": "system", "content": template}]
-        model_name = "Qwen/Qwen2.5-14B-Instruct"
+        model_name = llm_model_name
         if history is not None and len(history) > 0:
             history = history[-8:]
             for item in history:
@@ -90,7 +92,7 @@ class LlmClient:
             "model": model_name,
             "messages": messages,
             "stream": True,
-            "max_tokens": 2048
+            "max_tokens": 4096
         })
         headers = {
             'Authorization': f"Bearer {self.config['silicon_sk']}",
@@ -131,10 +133,10 @@ class LlmClient:
                 "content": user_input
             })
         payload = json.dumps({
-            "model": "Qwen/Qwen2.5-7B-Instruct",
+            "model": llm_model_name,
             "messages": messages,
             "stream": False,
-            "max_tokens": 1024
+            "max_tokens": 4096
         })
         headers = {
             'Authorization': f"Bearer {self.config['silicon_sk']}",
