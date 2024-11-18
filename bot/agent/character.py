@@ -1,6 +1,7 @@
 import json
 import sys
 import os
+import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
@@ -40,12 +41,15 @@ class Character:
             tools_res = lib.tools.tools_run(assistant_res.Tools)
             tools_message = {
                 "role": "assistant",
-                "content": f"请参考工具调用的结果回答我得问题：{json.dumps(tools_res)}",
+                "content": f"请参考工具调用的结果回答我得问题，如果有图片地址，将图片输出出来：{json.dumps(tools_res)}",
             }
-
         # step3 结合返回结果，组装数据流式输出。
         final = lib.llm.LlmClient().chat(
             message, history, self.system_prompt, tools_message
         )
         for ans in final:
             yield ans
+        # else:
+        #     for char in assistant_res:
+        #         yield char
+        #         time.sleep(0.01)

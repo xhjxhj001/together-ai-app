@@ -160,7 +160,7 @@ class LlmClient:
             "model": llm_model_name,
             "messages": messages,
             "stream": False,
-            "max_tokens": 2048,
+            "max_tokens": 4096,
         }
         if with_tools:
             body["tools"] = tools.get_all_agent_functions()
