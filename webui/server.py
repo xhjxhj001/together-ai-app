@@ -71,8 +71,9 @@ class WebuiServer:
         trans_prompt = lib.llm.LlmClient().chat_single(
             prompt, None, lib.llm.draw_prompt
         )
+        yield "生图中...请稍等..."
         img_url = lib.llm.LlmClient().draw(trans_prompt, model, width, height)
-        return "![pic](" + img_url + ")"
+        yield "![pic](" + img_url + ")"
 
     # 儿童绘本
     def children_books(self, prompt, pages):
