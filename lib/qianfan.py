@@ -38,8 +38,8 @@ class QianfanClient:
                 if choice.delta.content:
                     # 打印当前块的内容
                     print(choice.delta.content)
-                    content = choice.delta.content.replace("<think>", "```\n")
-                    content = content.replace("</think>", "\n```\n")
+                    content = choice.delta.content.replace("<think>", "思考中... \n ")
+                    content = content.replace("</think>", "\n思考结束\n ***")
                     yield content
 
 
