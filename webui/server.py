@@ -71,7 +71,8 @@ class WebuiServer:
         trans_prompt = lib.llm.LlmClient().chat_single(
             prompt, None, lib.llm.draw_prompt
         )
-        return lib.llm.LlmClient().draw(trans_prompt, model, width, height)
+        img_url = lib.llm.LlmClient().draw(trans_prompt, model, width, height)
+        return "![pic](" + img_url + ")"
 
     # 儿童绘本
     def children_books(self, prompt, pages):
@@ -150,7 +151,8 @@ class WebuiServer:
                     label="切换模型",
                     choices=[
                         "black-forest-labs/FLUX.1-schnell",
-                        "stabilityai/stable-diffusion-3-5-large",
+                        "deepseek-ai/Janus-Pro-7B",
+                        "black-forest-labs/FLUX.1-dev",
                     ],
                 ),
                 gr.Text(label="提示词"),
@@ -158,7 +160,7 @@ class WebuiServer:
                 gr.Slider(128, 2048, 1024, label="高"),
             ],
             title="文生图(可以用中文prompt)",
-            outputs=[gr.Image(label="结果")],
+            outputs=[gr.Markdown(label="结果")],
             submit_btn="开始生成",
             clear_btn="清理",
             stop_btn="中断",
