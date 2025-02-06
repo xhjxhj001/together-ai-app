@@ -1,12 +1,17 @@
 import http.client
 import json
 import tools
+from openai import OpenAI
+
+modelDeepSeekR1 = "deepseek-r1"
+modelDeepSeekV3 = "deepseek-v3"
 
 draw_prompt = "你是一个文生图prompt专家，请将用户输入的中文prompt转化为英文prompt"
 assis_prompt = "你是一个系统助手，请用中文回答问题"
 vl_model_name = "OpenGVLab/InternVL2-26B"
 # llm_model_name = "Qwen/Qwen2.5-14B-Instruct"
 llm_model_name = "Qwen/Qwen2.5-72B-Instruct"
+# llm_model_name = "Qwen/QwQ-32B-Preview"
 
 
 class AssistantResp:
@@ -20,6 +25,8 @@ class LlmClient:
         self.config = config
         # 打印环境变量
         print("silicon_sk:", self.config["silicon_sk"])
+        # 打印环境变量
+        print("qianfan_sk:", self.config["qianfan_sk"])
 
     def draw(
         self, prompt, model="black-forest-labs/FLUX.1-schnell", width=1024, height=1024
@@ -152,7 +159,11 @@ class LlmClient:
             history = history[-8:]
             for item in history:
                 messages.append(item)
-        if user_input is not None and "text" in user_input:
+        if (
+            user_input is not None
+            and isinstance(user_input, dict)
+            and "text" in user_input
+        ):
             messages.append({"role": "user", "content": user_input["text"]})
         elif user_input is not None:
             messages.append({"role": "user", "content": user_input})
@@ -189,3 +200,28 @@ class LlmClient:
             return obj["choices"][0]["message"]["content"]
         else:
             print(f"请求失败，状态码: {response.status}")
+
+    def chat_completion(self, message, model=modelDeepSeekR1):
+        client = OpenAI(
+            base_url="https://qianfan.baidubce.com/v2",
+            api_key=self.config["qianfan_sk"],
+        )
+        chat_completion = client.chat.completions.create(
+            model=model,
+            messages=message,
+            stream=True,
+        )
+        if chat_completion.response.status_code != 200:
+            print(f"请求失败，状态码: {chat_completion.response.status_code}")
+            raise RuntimeError("模型错误")
+        # 逐块处理并打印输出
+        for chunk in chat_completion:
+            # 检查是否有新的内容
+            if chunk.choices:
+                choice = chunk.choices[0]
+                if choice.delta.content:
+                    # 打印当前块的内容
+                    print(choice.delta.content)
+                    content = choice.delta.content.replace("<think>", "```")
+                    content = content.replace("</think>", "```")
+                    yield content

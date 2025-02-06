@@ -37,11 +37,32 @@ class WebuiServer:
             res = res + ans
             yield res
 
-    def character_chat(self, message, history):
+    # deepseek 推理机器人
+    def chat_deepSeek(
+        self,
+        message,
+        history,
+        tpl=lib.prompt_tpl.system_default_tpl,
+        model=lib.llm.modelDeepSeekR1,
+    ):
         res = ""
-        for ans in bot.agent.character.Character(lib.prompt_tpl.Van_Gogh_prompt).chat(
-            message, history
-        ):
+        for ans in bot.agent.character.Character(tpl).chat(message, history, model):
+            res = res + ans
+            yield res
+
+    def character_chat_Happy_Lantern_Festival(
+        self, message, history, tpl=lib.prompt_tpl.Happy_Lantern_Festival_prompt
+    ):
+        res = ""
+        for ans in bot.agent.character.Character(tpl).function_call(message, history):
+            res = res + ans
+            yield res
+
+    def character_chat_Van_Gogh(
+        self, message, history, tpl=lib.prompt_tpl.Van_Gogh_prompt
+    ):
+        res = ""
+        for ans in bot.agent.character.Character(tpl).function_call(message, history):
             res = res + ans
             yield res
 
@@ -66,18 +87,54 @@ class WebuiServer:
 
     def run(self):
         theme = gr.themes.Soft()
+
+        # 正月十五猜灯谜
+        happyLanternFestivalInterface = gr.ChatInterface(
+            fn=self.character_chat_Happy_Lantern_Festival,
+            multimodal=True,
+            type="messages",
+            title="正月十五猜灯谜",
+            theme=theme,
+        )
+        # DeepSeek-R1
+        deepSeekInterface = gr.ChatInterface(
+            fn=self.chat_deepSeek,
+            multimodal=True,
+            type="messages",
+            title="DeepSeek(R1、V3)",
+            theme=theme,
+            autofocus=False,
+            additional_inputs_accordion=gr.Accordion(
+                label="额外设定", open=True, visible=True
+            ),
+            additional_inputs=[
+                gr.Textbox(
+                    label="系统设定（支持自定义prompt）",
+                    value=lib.prompt_tpl.system_default_tpl,
+                    lines=3,
+                    max_lines=10,
+                ),
+                gr.components.Dropdown(
+                    value="deepseek-r1",
+                    label="切换模型",
+                    choices=[
+                        "deepseek-r1",
+                        "deepseek-v3",
+                    ],
+                ),
+            ],
+        )
         # AI 聊天tab
         chatInterface = gr.ChatInterface(
             fn=self.conversation,
             multimodal=True,
             type="messages",
             title="聊天机器人（无联网，支持上传图片提问）",
-            theme=theme,
         )
 
-        #
+        # 梵高
         characterInterface = gr.ChatInterface(
-            fn=self.character_chat,
+            fn=self.character_chat_Van_Gogh,
             multimodal=True,
             type="messages",
             title="梵高",
@@ -150,13 +207,23 @@ class WebuiServer:
         # main 实例化gradio tab 序列
         demo = gr.TabbedInterface(
             [
+                happyLanternFestivalInterface,
+                deepSeekInterface,
                 chatInterface,
                 drawInterface,
                 agentChildrenInterface,
                 agentStoryGenInterface,
                 characterInterface,
             ],
-            ["AI助手", "画图助手", "儿童绘本助手", "图文故事生成器", "梵高"],
+            [
+                "正月十五猜灯谜",
+                "DeepSeekR1",
+                "AI助手",
+                "画图助手",
+                "儿童绘本助手",
+                "图文故事生成器",
+                "梵高",
+            ],
             theme=theme,
         )
 

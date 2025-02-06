@@ -1,12 +1,14 @@
 import json
 import sys
 import os
-import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 try:
     import lib.llm  # 替换为你要导入的实际模块名
+    import lib.qianfan  # 替换为你要导入的实际模块名
+    import lib.silicon_flow  # 替换为你要导入的实际模块名
+    import lib.messages  # 替换为你要导入的实际模块名
     import lib.tts  # 替换为你要导入的实际模块名
     import lib.prompt_tpl  # 替换为你要导入的实际模块名
     import lib.tools
@@ -21,7 +23,16 @@ class Character:
         self.system_prompt = tpl
         self.tools = tools
 
-    def chat(self, message, history):
+    def chat(self, user_input, history, model):
+        messages = lib.messages.Messages().formatMessageByUserInput(
+            user_input, history, self.system_prompt
+        )
+        final = lib.qianfan.QianfanClient().chat_completion(messages, model)
+        # final = lib.silicon_flow.SiliconClient().chat_completion(messages, model)
+        for ans in final:
+            yield ans
+
+    def function_call(self, message, history):
         tools_message = None
         # step1 assistant 思考问题
         assistant_res = lib.llm.LlmClient().chat_single(

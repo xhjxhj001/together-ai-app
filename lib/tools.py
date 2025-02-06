@@ -23,11 +23,13 @@ def load_config():
     host_name = os.getenv("HOST")
     silicon_sk = os.getenv("SILICON_FLOW_SK")
     aliyun_sk = os.getenv("DASH_SCOPE_SK")
+    qianfan_sk = os.getenv("QIAN_FAN_SK")
     return {
         "host_name": host_name,
         "port": port,
         "silicon_sk": silicon_sk,
         "aliyun_sk": aliyun_sk,
+        "qianfan_sk": qianfan_sk,
     }
 
 
