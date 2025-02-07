@@ -13,6 +13,6 @@ if [ ! -e "$FILE" ]; then
     echo "env 文件不存在: $FILE"
     exit
 fi
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 nohup python -u webui/server.py  > server.log 2>&1 &
