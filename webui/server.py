@@ -71,10 +71,8 @@ class WebuiServer:
         trans_prompt = lib.llm.LlmClient().chat_single(
             prompt, None, lib.llm.draw_prompt
         )
-        yield "生图中...请稍等..."
         img_url = lib.llm.LlmClient().draw(trans_prompt, model, width, height)
-        yield "![pic](" + img_url + ")"
-
+        return img_url
     # 儿童绘本
     def children_books(self, prompt, pages):
         return bot.agent.children_books.generate_children_books(
@@ -161,7 +159,7 @@ class WebuiServer:
                 gr.Slider(128, 2048, 1024, label="高"),
             ],
             title="文生图(可以用中文prompt)",
-            outputs=[gr.Markdown(label="结果")],
+            outputs=[gr.Image(label="结果")],
             submit_btn="开始生成",
             clear_btn="清理",
             stop_btn="中断",
