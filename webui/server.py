@@ -73,6 +73,7 @@ class WebuiServer:
         )
         img_url = lib.llm.LlmClient().draw(trans_prompt, model, width, height)
         return img_url
+
     # 儿童绘本
     def children_books(self, prompt, pages):
         return bot.agent.children_books.generate_children_books(
@@ -95,6 +96,7 @@ class WebuiServer:
             type="messages",
             title="正月十五猜灯谜",
             theme=theme,
+            save_history=True,
         )
         # DeepSeek-R1
         deepSeekInterface = gr.ChatInterface(
@@ -103,6 +105,7 @@ class WebuiServer:
             type="messages",
             title="DeepSeek(R1、V3)",
             theme=theme,
+            save_history=True,
             autofocus=False,
             additional_inputs_accordion=gr.Accordion(
                 label="额外设定", open=True, visible=True
@@ -130,6 +133,7 @@ class WebuiServer:
             multimodal=True,
             type="messages",
             title="聊天机器人（无联网，支持上传图片提问）",
+            save_history=True,
         )
 
         # 梵高
@@ -139,6 +143,7 @@ class WebuiServer:
             type="messages",
             title="梵高",
             theme=theme,
+            save_history=True,
         )
 
         # 绘画助手tab
