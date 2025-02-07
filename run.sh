@@ -15,5 +15,4 @@ if [ ! -e "$FILE" ]; then
 fi
 pip install -r requirements.txt
 
-
-python webui/server.py
+nohup python -u webui/server.py  > server.log 2>&1 &
