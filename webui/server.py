@@ -213,8 +213,8 @@ class WebuiServer:
         # main 实例化gradio tab 序列
         demo = gr.TabbedInterface(
             [
-                happyLanternFestivalInterface,
                 deepSeekInterface,
+                happyLanternFestivalInterface,
                 chatInterface,
                 drawInterface,
                 agentChildrenInterface,
@@ -222,8 +222,8 @@ class WebuiServer:
                 characterInterface,
             ],
             [
-                "正月十五猜灯谜",
                 "DeepSeekR1",
+                "正月十五猜灯谜",
                 "AI助手",
                 "画图助手",
                 "儿童绘本助手",
