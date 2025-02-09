@@ -31,18 +31,35 @@ class QianfanClient:
             print(f"请求失败，状态码: {chat_completion.response.status_code}")
             raise RuntimeError("模型错误")
         # 逐块处理并打印输出
+        # 逐块处理并打印输出
+        think_end = False
+        think_start = False
         for chunk in chat_completion:
             # 检查是否有新的内容
             if chunk.choices:
                 choice = chunk.choices[0]
+                if (
+                    "reasoning_content" in choice.delta.model_extra
+                    and choice.delta.model_extra["reasoning_content"] is not None
+                    and choice.delta.model_extra["reasoning_content"] != ""
+                ):
+                    if think_start is False:
+                        print("<think>")
+                        think_start = True
+                        print("```")
+                        yield "#### 思考中...\n"
+                    print(choice.delta.model_extra["reasoning_content"])
+                    yield choice.delta.model_extra["reasoning_content"]
                 if choice.delta.content:
+                    if think_start is True and think_end is False:
+                        print("</think>")
+                        think_end = True
+                        print("```")
+                        yield "\n #### 思考完成 \n *** \n"
                     # 打印当前块的内容
-                    print(choice.delta.content)
-                    content = choice.delta.content.replace(
-                        "<think>", "### 思考中... \n "
-                    )
-                    content = content.replace("</think>", "\n ### 思考结束\n ***")
-                    yield content
+                    if choice.delta.content is not None:
+                        print(choice.delta.content)
+                        yield choice.delta.content
 
 
 #

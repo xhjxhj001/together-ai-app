@@ -52,7 +52,7 @@ class SiliconClient:
                         print("<think>")
                         think_start = True
                         print("```")
-                        yield "```\n"
+                        yield "#### 思考中...\n"
                     print(choice.delta.model_extra["reasoning_content"])
                     yield choice.delta.model_extra["reasoning_content"]
                 if choice.delta.content:
@@ -60,7 +60,7 @@ class SiliconClient:
                         print("</think>")
                         think_end = True
                         print("```")
-                        yield "\n``` \n"
+                        yield "\n #### 思考完成 \n *** \n"
                     # 打印当前块的内容
                     if choice.delta.content is not None:
                         print(choice.delta.content)
