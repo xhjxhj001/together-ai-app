@@ -8,7 +8,7 @@ modelDeepSeekV3 = "deepseek-v3"
 
 draw_prompt = "你是一个文生图prompt专家，请将用户输入的中文prompt转化为英文prompt"
 assis_prompt = "你是一个系统助手，请用中文回答问题"
-vl_model_name = "OpenGVLab/InternVL2-26B"
+vl_model_name = "Qwen/Qwen2-VL-72B-Instruct"
 # llm_model_name = "Qwen/Qwen2.5-14B-Instruct"
 llm_model_name = "Qwen/Qwen2.5-72B-Instruct"
 # llm_model_name = "Qwen/QwQ-32B-Preview"
