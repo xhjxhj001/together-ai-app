@@ -23,15 +23,6 @@ class Character:
         self.system_prompt = tpl
         self.tools = tools
 
-    def chat(self, user_input, history, model):
-        messages = lib.messages.Messages().formatMessageByUserInput(
-            user_input, history, self.system_prompt
-        )
-        final = lib.qianfan.QianfanClient().chat_completion(messages, model)
-        # final = lib.silicon_flow.SiliconClient().chat_completion(messages, model)
-        for ans in final:
-            yield ans
-
     def function_call(self, message, history):
         tools_message = None
         # step1 assistant 思考问题

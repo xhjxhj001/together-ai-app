@@ -10,6 +10,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 try:
     import lib.llm
     import lib.tools
+    import lib.messages
     import lib.prompt_tpl
     import bot.agent.chat
     import bot.agent.character
@@ -42,11 +43,15 @@ class WebuiServer:
         self,
         message,
         history,
-        tpl=lib.prompt_tpl.system_default_tpl,
-        model=lib.llm.modelDeepSeekR1,
+        tpl,
+        model,
     ):
         res = ""
-        for ans in bot.agent.character.Character(tpl).chat(message, history, model):
+        messages, multimodal = lib.messages.Messages().format_message_by_user_input(
+            message, history, tpl
+        )
+        final = lib.llm.LlmClient().chat_completion(messages, model, multimodal)
+        for ans in final:
             res = res + ans
             yield res
 
@@ -88,16 +93,6 @@ class WebuiServer:
 
     def run(self):
         theme = gr.themes.Soft()
-
-        # 正月十五猜灯谜
-        happyLanternFestivalInterface = gr.ChatInterface(
-            fn=self.character_chat_Happy_Lantern_Festival,
-            multimodal=True,
-            type="messages",
-            title="正月十五猜灯谜",
-            theme=theme,
-            save_history=True,
-        )
         # DeepSeek-R1
         deepSeekInterface = gr.ChatInterface(
             fn=self.chat_deepSeek,
@@ -118,11 +113,14 @@ class WebuiServer:
                     max_lines=10,
                 ),
                 gr.components.Dropdown(
-                    value="deepseek-r1",
+                    value=lib.llm.model_name_silicon_deepseek_r1,
                     label="切换模型",
                     choices=[
-                        "deepseek-r1",
-                        "deepseek-v3",
+                        lib.llm.model_name_silicon_deepseek_r1,
+                        lib.llm.model_name_silicon_deepseek_v3,
+                        # lib.llm.model_name_qianfan_deepseek_r1,
+                        # lib.llm.model_name_qianfan_deepseek_v3,
+                        # lib.llm.model_name_bailian_qwen25_vl_72b,
                     ],
                 ),
             ],
@@ -214,7 +212,6 @@ class WebuiServer:
         demo = gr.TabbedInterface(
             [
                 deepSeekInterface,
-                happyLanternFestivalInterface,
                 chatInterface,
                 drawInterface,
                 agentChildrenInterface,
@@ -223,7 +220,6 @@ class WebuiServer:
             ],
             [
                 "DeepSeekR1",
-                "正月十五猜灯谜",
                 "AI助手",
                 "画图助手",
                 "儿童绘本助手",
